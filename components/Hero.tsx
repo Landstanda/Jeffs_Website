@@ -25,12 +25,31 @@ export default function Hero() {
   return (
     <section className="relative min-h-[140svh] overflow-hidden">
       <div ref={wrapperRef} className="sticky top-0 h-screen">
+        {/* Black background that fades out */}
         <div className="absolute inset-0 bg-black" style={{ opacity: Math.max(0, 1 - phase) }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b1220] to-[#0ea5e9] transition-opacity" style={{ opacity: phase }} />
-        <CursorField />
+        
+        {/* Gradient that continues scrolling - black to purple/blue to green */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-300" 
+          style={{ 
+            opacity: phase,
+            background: `linear-gradient(to bottom, 
+              transparent 0%, 
+              #0b1220 25%, 
+              #0ea5e9 50%, 
+              #16a34a 75%, 
+              #22c55e 100%)`
+          }} 
+        />
+        
+        {/* CursorField only on initial screen */}
+        <div className="absolute inset-0 h-screen overflow-hidden">
+          <CursorField />
+        </div>
+        
         <div className="relative z-10 h-full grid md:grid-cols-2">
-          <div className="flex items-center justify-center p-6 md:p-12">
-            <div className="relative w-72 h-96 md:w-[28rem] md:h-[38rem] border border-white/10 shadow-2xl">
+          <div className="flex items-center justify-start p-6 md:p-12">
+            <div className="relative w-80 h-96 md:w-[32rem] md:h-[40rem] border border-white/10 shadow-2xl">
               <Image src="/Jeff.jpg" alt="Portrait" fill className="object-cover object-center grayscale" priority />
             </div>
           </div>

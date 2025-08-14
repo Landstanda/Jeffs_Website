@@ -40,8 +40,10 @@ export default function CursorField({ count = 120 }: { count?: number }) {
       mouseY = (e.clientY - rect.top) * devicePixelRatio
     }
     const onLeave = () => { mouseX = -9999; mouseY = -9999 }
-    c.addEventListener('mousemove', onMove)
-    c.addEventListener('mouseleave', onLeave)
+    
+    // Use window events instead of canvas events for better coverage
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseleave', onLeave)
 
     const render = () => {
       const pad = 40 * devicePixelRatio
@@ -107,13 +109,17 @@ export default function CursorField({ count = 120 }: { count?: number }) {
     return () => {
       cancelAnimationFrame(animation)
       window.removeEventListener('resize', onResize)
-      c.removeEventListener('mousemove', onMove)
-      c.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseleave', onLeave)
     }
   }, [points])
 
   return (
-    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" aria-hidden />
+    <canvas 
+      ref={canvasRef} 
+      className="absolute inset-0 w-full h-full pointer-events-none" 
+      aria-hidden 
+    />
   )
 }
 

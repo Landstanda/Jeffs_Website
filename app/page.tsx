@@ -9,10 +9,41 @@ const quotes = [
   'Resilience is a feature, not a fix.',
 ]
 
-export default function HomePage() {
+export default function Home() {
   return (
     <main className="min-h-screen">
       <Hero />
+      
+      {/* Content section that shows the continued green theme */}
+      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] min-h-screen">
+        <div className="container mx-auto px-6 py-24">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">
+              Growing the Future
+            </h2>
+            <p className="text-xl text-white/90 mb-12 leading-relaxed">
+              From black to blue to green — like a seed breaking through soil, 
+              reaching for light. This is how we build: one layer at a time, 
+              each more vibrant than the last.
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-8 mt-16">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                <h3 className="text-xl font-semibold text-white mb-3">AI & Automation</h3>
+                <p className="text-white/80">Building systems that plant more systems. Code like a forest.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                <h3 className="text-xl font-semibold text-white mb-3">Permaculture</h3>
+                <p className="text-white/80">Designing resilient ecosystems, both digital and natural.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                <h3 className="text-xl font-semibold text-white mb-3">Edge Computing</h3>
+                <p className="text-white/80">Lightweight, fast, private. The future runs on the edge.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto max-w-5xl px-6 py-16 space-y-10">
         <div className="grid md:grid-cols-3 gap-6">
