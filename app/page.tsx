@@ -14,9 +14,9 @@ export default function Home() {
     <main className="min-h-screen">
       <Hero />
       
-      {/* Content sections that flow seamlessly from the Hero gradient */}
-      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] pt-0 pb-24">
-        <div className="container mx-auto px-6 pt-16">
+      {/* Content section that shows the continued green theme */}
+      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] min-h-screen">
+        <div className="container mx-auto px-6 py-24">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">
               Growing the Future
@@ -45,7 +45,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-16 space-y-10 bg-[#16a34a]">
+      <section className="mx-auto max-w-5xl px-6 py-16 space-y-10">
         <div className="grid md:grid-cols-3 gap-6">
           {quotes.map((q, i) => (
             <div key={i} className="p-6 rounded-lg bg-white/5 ring-1 ring-white/10 backdrop-blur">
@@ -61,15 +61,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 pb-24 bg-[#16a34a]">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Currently</h2>
+      <section className="mx-auto max-w-5xl px-6 pb-24">
+        <h2 className="text-2xl font-semibold mb-4">Currently</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="p-6 rounded-lg bg-white/5 ring-1 ring-white/10">
-            <h3 className="font-medium text-white">Edgewise</h3>
+            <h3 className="font-medium">Edgewise</h3>
             <p className="text-white/70">Building the apps of the future on the edge — private, light, brilliant, fast.</p>
           </div>
           <div className="p-6 rounded-lg bg-white/5 ring-1 ring-white/10">
-            <h3 className="font-medium text-white">Permaculture automation</h3>
+            <h3 className="font-medium">Permaculture automation</h3>
             <p className="text-white/70">Seed to forest, sensors to systems. Tooling the long game of stewardship.</p>
           </div>
         </div>

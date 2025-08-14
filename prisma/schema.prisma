@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   // JSON content from Tiptap
+  excerpt     String?  // Short description
+  published   Boolean  @default(false)
+  featuredImage String? // Cloudinary URL
+  tags        String?  // Comma-separated tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("posts")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String   // Cloudinary URL
+  publicId  String   // Cloudinary public ID
+  alt       String?
+  createdAt DateTime @default(now())
+  
+  @@map("media")
+}
