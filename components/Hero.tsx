@@ -23,12 +23,12 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-[200svh] overflow-hidden">
       <div ref={wrapperRef} className="sticky top-0 h-screen">
         {/* Black background that fades out */}
         <div className="absolute inset-0 bg-black" style={{ opacity: Math.max(0, 1 - phase) }} />
         
-        {/* Gradient that continues scrolling - black to purple/blue to green */}
+        {/* Gradient that covers the full Hero section height */}
         <div 
           className="absolute inset-0 transition-opacity duration-300" 
           style={{ 
@@ -68,6 +68,21 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      
+      {/* Extended gradient that covers the full section height */}
+      <div 
+        className="absolute inset-0 transition-opacity duration-300 pointer-events-none" 
+        style={{ 
+          opacity: phase,
+          background: `linear-gradient(to bottom, 
+            transparent 0%, 
+            #0b1220 5%, 
+            #0ea5e9 20%, 
+            #16a34a 45%, 
+            #22c55e 70%, 
+            #22c55e 100%)`
+        }} 
+      />
     </section>
   )
 }
