@@ -1,0 +1,3 @@
+Place public assets like Jeff.jpg here. Ensure the file is named Jeff.jpg.
+
+
