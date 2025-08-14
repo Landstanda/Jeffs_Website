@@ -15,8 +15,8 @@ export default function Home() {
       <Hero />
       
       {/* Content sections that flow from the green gradient */}
-      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] pt-32 pb-24">
-        <div className="container mx-auto px-6">
+      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] pb-24">
+        <div className="container mx-auto px-6 pt-16">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">
               Growing the Future

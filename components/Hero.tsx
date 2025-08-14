@@ -23,7 +23,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-[200svh] overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       <div ref={wrapperRef} className="sticky top-0 h-screen">
         {/* Black background that fades out */}
         <div className="absolute inset-0 bg-black" style={{ opacity: Math.max(0, 1 - phase) }} />
@@ -35,10 +35,10 @@ export default function Hero() {
             opacity: phase,
             background: `linear-gradient(to bottom, 
               transparent 0%, 
-              #0b1220 15%, 
-              #0ea5e9 35%, 
-              #16a34a 60%, 
-              #22c55e 85%, 
+              #0b1220 10%, 
+              #0ea5e9 25%, 
+              #16a34a 50%, 
+              #22c55e 75%, 
               #22c55e 100%)`
           }} 
         />
