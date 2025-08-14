@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: 'Edgewise — Jeff',
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="antialiased gradients min-h-screen selection:bg-sky-500/30 selection:text-white">
         <div className="noise" />
+        <Navigation />
         {children}
       </body>
     </html>
