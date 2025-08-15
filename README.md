@@ -334,16 +334,41 @@ jeffs-website/
 ## 🚀 Deployment
 
 ### Fly.io Deployment
+
+**Finding flyctl on Windows:**
+If `flyctl` command isn't recognized, it's likely installed but not in your PATH. Find it with:
+```powershell
+# Search for flyctl installation
+Get-ChildItem -Path C:\Users\$env:USERNAME -Recurse -Filter flyctl.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+```
+
+**Common install locations:**
+- `C:\Users\[username]\.fly\bin\flyctl.exe` (PowerShell installer)
+- `C:\ProgramData\chocolatey\bin\flyctl.exe` (Chocolatey)
+- `C:\Program Files\flyctl\flyctl.exe` (Manual install)
+
+**Deploy commands:**
 ```bash
-# Deploy to production
-flyctl deploy --app jeff-edgewise
+# If flyctl is in PATH:
+flyctl auth login
+flyctl deploy --app jeff-edgewise --remote-only --detach
+
+# If flyctl is NOT in PATH (use full path):
+& "C:\Users\[username]\.fly\bin\flyctl.exe" auth login
+& "C:\Users\[username]\.fly\bin\flyctl.exe" deploy --app jeff-edgewise --remote-only --detach
 
 # View logs
 flyctl logs --app jeff-edgewise
+# or with full path:
+& "C:\Users\[username]\.fly\bin\flyctl.exe" logs --app jeff-edgewise
 
 # Scale app
 flyctl scale count 1 --app jeff-edgewise
 ```
+
+**Deploy flags explained:**
+- `--remote-only`: Build in Fly's cloud (faster, handles large files better)
+- `--detach`: Don't wait for deployment to complete (optional)
 
 ### Environment Variables
 Create `.env.local` for local development:
