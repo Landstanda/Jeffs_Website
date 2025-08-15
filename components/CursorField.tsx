@@ -1,20 +1,28 @@
 "use client"
 import { useEffect, useMemo, useRef } from 'react'
 
-type Point = { x: number; y: number; homeX: number; homeY: number; vx: number; vy: number }
+type Point = {
+  x: number
+  y: number
+  homeU: number
+  homeV: number
+  vx: number
+  vy: number
+  twinklePhase: number
+  size: number
+}
 
 export default function CursorField({ count = 120 }: { count?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const points = useMemo<Point[]>(() => {
     const arr: Point[] = []
-    const cols = Math.ceil(Math.sqrt(count))
-    const rows = Math.ceil(count / cols)
-    for (let j = 0; j < rows; j++) {
-      for (let i = 0; i < cols; i++) {
-        const idx = j * cols + i
-        if (idx >= count) break
-        arr.push({ x: 0, y: 0, homeX: i, homeY: j, vx: 0, vy: 0 })
-      }
+    for (let i = 0; i < count; i++) {
+      // uniform X, top-biased Y (square the random), clamp to top ~60%
+      const u = Math.random()
+      const v = Math.pow(Math.random(), 2) * 0.8
+      const size = 1.2 + Math.random() * 1.8
+      const phase = Math.random() * Math.PI * 2
+      arr.push({ x: 0, y: 0, homeU: u, homeV: v, vx: 0, vy: 0, twinklePhase: phase, size })
     }
     return arr
   }, [count])
@@ -47,25 +55,30 @@ export default function CursorField({ count = 120 }: { count?: number }) {
 
     const render = () => {
       const pad = 40 * devicePixelRatio
-      const cols = Math.ceil(Math.sqrt(points.length))
-      const rows = Math.ceil(points.length / cols)
-      const dx = (c.width - pad * 2) / Math.max(1, cols - 1)
-      const dy = (c.height - pad * 2) / Math.max(1, rows - 1)
+      const innerWidth = Math.max(0, c.width - pad * 2)
+      const innerHeight = Math.max(0, c.height - pad * 2)
       const influence = 80 * devicePixelRatio
       const snap = 0.08
       const friction = 0.88
+      const t = performance.now() * 0.001
 
       ctx.clearRect(0, 0, c.width, c.height)
-      ctx.fillStyle = 'rgba(255,255,255,0.8)'
+      ctx.fillStyle = '#ffffff'
+      ctx.shadowColor = 'rgba(255,255,255,0.85)'
+      ctx.shadowBlur = 6 * devicePixelRatio
 
       for (let p = 0; p < points.length; p++) {
         const pt = points[p]
-        const hx = pad + pt.homeX * dx
-        const hy = pad + pt.homeY * dy
+        const hx = pad + pt.homeU * innerWidth
+        const hy = pad + pt.homeV * innerHeight
 
         // spring towards home
         pt.vx += (hx - pt.x) * snap
         pt.vy += (hy - pt.y) * snap
+
+        // gentle drift to feel alive
+        pt.vx += Math.sin(t * 0.5 + pt.twinklePhase) * 0.02 * devicePixelRatio
+        pt.vy += Math.cos(t * 0.4 + pt.twinklePhase) * 0.02 * devicePixelRatio
 
         // repel from cursor
         const mx = pt.x - mouseX
@@ -83,24 +96,27 @@ export default function CursorField({ count = 120 }: { count?: number }) {
         pt.x += pt.vx
         pt.y += pt.vy
 
+        // twinkle
+        const twinkle = 0.6 + 0.4 * Math.sin(t * 2.2 + pt.twinklePhase)
+        ctx.globalAlpha = twinkle
         ctx.beginPath()
-        ctx.arc(pt.x || hx, pt.y || hy, 2.2 * devicePixelRatio, 0, Math.PI * 2)
+        ctx.arc(pt.x || hx, pt.y || hy, pt.size * 2.0 * devicePixelRatio, 0, Math.PI * 2)
         ctx.fill()
       }
 
+      ctx.globalAlpha = 1
+      ctx.shadowBlur = 0
       animation = requestAnimationFrame(render)
     }
 
     // init positions
     const init = () => {
-      const cols = Math.ceil(Math.sqrt(points.length))
-      const rows = Math.ceil(points.length / cols)
       const pad = 40 * devicePixelRatio
-      const dx = (c.width - pad * 2) / Math.max(1, cols - 1)
-      const dy = (c.height - pad * 2) / Math.max(1, rows - 1)
+      const innerWidth = Math.max(0, c.width - pad * 2)
+      const innerHeight = Math.max(0, c.height - pad * 2)
       for (const pt of points) {
-        pt.x = pad + pt.homeX * dx
-        pt.y = pad + pt.homeY * dy
+        pt.x = pad + pt.homeU * innerWidth
+        pt.y = pad + pt.homeV * innerHeight
       }
     }
     init()

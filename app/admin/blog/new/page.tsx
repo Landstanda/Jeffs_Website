@@ -66,7 +66,7 @@ export default function NewPost() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#22c55e] to-[#16a34a] p-6">
+    <div className="min-h-screen bg-gradient-to-b from-[#15803d] to-[#16a34a] p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-white">New Post</h1>

@@ -23,4 +23,8 @@ primary_region = "sjc"
   cpus = 1
   memory_mb = 256
 
+  [[vm.mounts]]
+    source = "data"
+    destination = "/data"
+
 

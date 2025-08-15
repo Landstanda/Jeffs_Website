@@ -79,7 +79,7 @@ export default function BlogAdmin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#22c55e] to-[#16a34a] p-6">
+      <div className="min-h-screen bg-gradient-to-b from-[#15803d] to-[#16a34a] p-6">
         <div className="max-w-6xl mx-auto">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-white/20 rounded w-1/4"></div>
@@ -91,7 +91,7 @@ export default function BlogAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#22c55e] to-[#16a34a] p-6">
+    <div className="min-h-screen bg-gradient-to-b from-[#15803d] to-[#16a34a] p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-white">Blog Admin</h1>

@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Site-wide background gradient used by <body class="gradients"> */
+.gradients {
+  background: linear-gradient(
+    to bottom,
+    #000000 0%,
+    #320846 45%,
+    #2a228d 65%,
+    #1c54f0 85%,
+    #15803d 100%
+  );
+}
+
+/* Optional subtle noise overlay (rendered via <div class="noise" />) */
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
 /* Custom styles for Tiptap editor */
 .ProseMirror {
   outline: none;

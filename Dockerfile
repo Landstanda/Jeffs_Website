@@ -28,7 +28,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma/dev.db ./prisma/dev.db
+# Ensure a startup script that initializes the SQLite DB on a mounted volume
+RUN printf '#!/bin/sh\nset -e\nmkdir -p /data\nexport DATABASE_URL="file:/data/dev.db"\n# Initialize the database schema on first run / keep in sync\n./node_modules/.bin/prisma db push\nexec npm start\n' > /start.sh && chmod +x /start.sh
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["sh", "/start.sh"]
 
 

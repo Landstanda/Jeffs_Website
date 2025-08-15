@@ -14,8 +14,8 @@ export default function Home() {
     <main className="min-h-screen">
       <Hero />
       
-      {/* Content section that shows the continued green theme */}
-      <section className="relative bg-gradient-to-b from-[#22c55e] to-[#16a34a] min-h-screen">
+      {/* Content section overlays the global body gradient */}
+      <section className="relative min-h-screen">
         <div className="container mx-auto px-6 py-24">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">

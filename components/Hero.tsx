@@ -23,38 +23,46 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-[140svh] overflow-hidden">
+    <section className="relative min-h-[200vh] overflow-hidden">
       <div ref={wrapperRef} className="sticky top-0 h-screen">
-        {/* Black background that fades out */}
-        <div className="absolute inset-0 bg-black" style={{ opacity: Math.max(0, 1 - phase) }} />
-        
-        {/* Gradient that continues scrolling - black to purple/blue to green */}
-        <div 
-          className="absolute inset-0 transition-opacity duration-300" 
-          style={{ 
-            opacity: phase,
-            background: `linear-gradient(to bottom, 
-              transparent 0%, 
-              #0b1220 25%, 
-              #0ea5e9 50%, 
-              #16a34a 75%, 
-              #22c55e 100%)`
-          }} 
+        {/* Black background that fades out; masked at the bottom to avoid a hard seam */}
+        <div
+          className="absolute inset-0 bg-black"
+          style={{
+            opacity: Math.max(0, 1 - phase),
+            WebkitMaskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
+          }}
         />
         
         {/* CursorField only on initial screen */}
-        <div className="absolute inset-0 h-screen overflow-hidden">
+        <div className="absolute inset-0 h-screen overflow-hidden" style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)' }}>
           <CursorField />
         </div>
         
         <div className="relative z-10 h-full grid md:grid-cols-2">
-          <div className="flex items-center justify-start p-6 md:p-12">
-            <div className="relative w-80 h-96 md:w-[32rem] md:h-[40rem] border border-white/10 shadow-2xl">
-              <Image src="/Jeff.jpg" alt="Portrait" fill className="object-cover object-center grayscale" priority />
+          <div className="flex items-start justify-start p-6 md:p-12">
+            <div className="relative w-72 h-[600px] md:w-80 md:h-[800px]">
+              <Image 
+                src="/Jeff.png" 
+                alt="Portrait" 
+                fill 
+                className="object-contain object-left grayscale transition-opacity duration-200" 
+                style={{ opacity: Math.max(0.3, 1 - phase * 1.5) }}
+                priority 
+              />
             </div>
           </div>
           <div className="flex flex-col items-start justify-center gap-4 p-6 md:p-12">
-            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
+            <h1 
+              className="text-3xl md:text-5xl font-semibold tracking-tight"
+              style={{
+                background: 'linear-gradient(to right, #4c1d95, #1e3a8a)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
               Automating better futures
             </h1>
             <p className="text-sky-200/90 max-w-xl">

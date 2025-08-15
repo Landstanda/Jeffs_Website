@@ -1,20 +1,29 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import TiptapEditor from '@/components/TiptapEditor'
-import Image from 'next/image'
+// Use native <img> to avoid crashes from remote domain/image config
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export default async function BlogPost({ params }: { params: { slug: string } }) {
-  const post = await prisma.post.findUnique({
-    where: { 
+  const post = await prisma.post.findFirst({
+    where: {
       slug: params.slug,
-      published: true 
+      published: true
     }
   })
   
   if (!post) return notFound()
   
-  const content = JSON.parse(post.content)
+  let content: any = null
+  try {
+    content = post.content ? JSON.parse(post.content) : null
+  } catch (err) {
+    console.error('Invalid post content JSON for slug', params.slug, err)
+    content = null
+  }
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -27,13 +36,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
       </Link>
 
       {/* Featured Image */}
-      {post.featuredImage && (
-        <div className="relative w-full h-64 md:h-96 mb-8 rounded-lg overflow-hidden">
-          <Image
+      {post.featuredImage && typeof post.featuredImage === 'string' && post.featuredImage.trim().length > 0 && (
+        <div className="w-full h-64 md:h-96 mb-8 rounded-lg overflow-hidden">
+          <img
             src={post.featuredImage}
             alt={post.title}
-            fill
-            className="object-cover"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
           />
         </div>
       )}
@@ -56,7 +66,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           
           {post.tags && (
             <div className="flex flex-wrap gap-2">
-              {post.tags.split(',').map((tag, index) => (
+              {post.tags.split(',').map((tag: string, index: number) => (
                 <span key={index} className="px-3 py-1 bg-sky-500/20 text-sky-300 text-sm rounded-full">
                   {tag.trim()}
                 </span>
@@ -68,7 +78,11 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
       {/* Content */}
       <article className="prose prose-invert prose-lg max-w-none">
-        <TiptapEditor content={content} editable={false} />
+        {content ? (
+          <TiptapEditor content={content} editable={false} />
+        ) : (
+          <p className="text-white/70">No content available.</p>
+        )}
       </article>
 
       {/* Footer */}
@@ -84,11 +98,4 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   )
 }
 
-export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    select: { slug: true }
-  })
-  
-  return posts.map(post => ({ slug: post.slug }))
-}
+ 

@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import Image from 'next/image'
+// Using native <img> to avoid remote domain restrictions that can crash the page
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 interface Post {
   id: string
@@ -14,23 +17,28 @@ interface Post {
 }
 
 export default async function BlogIndex() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      excerpt: true,
-      featuredImage: true,
-      tags: true,
-      createdAt: true,
-      updatedAt: true,
-    }
-  })
+  let posts: Array<any> = []
+  try {
+    posts = await prisma.post.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        featuredImage: true,
+        tags: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    })
+  } catch (error) {
+    console.error('Failed to load posts:', error)
+  }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16 space-y-8">
+    <main className="mx-auto max-w-5xl px-6 py-16 space-y-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Blog</h1>
         <p className="text-white/70 text-lg">Thoughts on AI, permaculture, and building the future</p>
@@ -41,17 +49,18 @@ export default async function BlogIndex() {
           <p className="text-white/60 text-lg">No posts yet. Coming soon.</p>
         </div>
       ) : (
-        <div className="grid gap-8">
+        <div className="grid gap-8 md:grid-cols-2">
           {posts.map((post) => (
             <article key={post.id} className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden hover:bg-white/10 transition-colors">
               <Link href={`/blog/${post.slug}`} className="block">
-                {post.featuredImage && (
-                  <div className="relative w-full h-48 md:h-64">
-                    <Image
+                {post.featuredImage && typeof post.featuredImage === 'string' && post.featuredImage.trim().length > 0 && (
+                  <div className="w-full h-48 md:h-64 overflow-hidden">
+                    <img
                       src={post.featuredImage}
                       alt={post.title}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
                     />
                   </div>
                 )}
@@ -72,7 +81,7 @@ export default async function BlogIndex() {
                     </time>
                     {post.tags && (
                       <div className="flex flex-wrap gap-2">
-                        {post.tags.split(',').map((tag, index) => (
+                        {post.tags.split(',').map((tag: string, index: number) => (
                           <span key={index} className="px-2 py-1 bg-sky-500/20 text-sky-300 text-xs rounded-full">
                             {tag.trim()}
                           </span>
