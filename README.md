@@ -1,6 +1,6 @@
 # Jeff's Website — Edgewise
 
-A stunning Next.js website featuring a black-to-sunrise gradient hero with interactive dancing stars, scroll-triggered color transitions, and a modern blog system. Built for deployment on Fly.io.
+A stunning Next.js website featuring a black-to-sunrise gradient hero with interactive dancing stars, an intelligent constellation visualization, auto-scrolling philosophy ticker, and a modern blog system. Built for deployment on Fly.io.
 
 ## ✨ Key Features
 
@@ -11,6 +11,25 @@ A stunning Next.js website featuring a black-to-sunrise gradient hero with inter
 - **Scroll masking** so stars stay visually "stuck" at the top during transitions
 - **Top-biased distribution** using squared random for realistic star field
 - **Touch-responsive** stars react to finger movement on mobile devices
+
+### 🌌 Interactive Constellation
+- **Central philosophy hub** with "A Thriving World" at the center
+- **8 orbital nodes**: Family, AI, Robotics, Writings, AR, Invention, Permaculture, Learning
+- **Responsive cursor parallax** with smooth motion following mouse movement
+- **Variable node sizes** with anti-overlap positioning system
+- **Subtle drift animation** for organic, living feel
+- **Color-coded nodes** with hover effects and glowing interactions
+- **Even distribution** algorithm prevents large gaps between nodes
+- **Full-width responsive** scaling that adapts to all screen sizes
+
+### 📰 Philosophy Ticker
+- **Full-width scrolling band** with 90s LED ticker aesthetic
+- **Auto-starting animation** when entering viewport, pauses when off-screen
+- **Seamless infinite loop** with readable scrolling speed
+- **Large serif typography** for authority and gravitas
+- **Semi-transparent black background** with subtle blur effects
+- **Edge fade masking** for smooth text entrance/exit
+- **Responsive sizing** with mobile and desktop optimizations
 
 ### 🌅 Scroll-Driven Color Transitions
 - **Sunrise gradient**: Black → Dark Blue → Sky Blue → Green progression
@@ -64,6 +83,99 @@ npx prisma db push
 ```
 
 ## 🎨 Customization Guide
+
+### Interactive Constellation
+**File**: `components/Constellation.tsx`
+
+**Content & Nodes**:
+```typescript
+// Lines 12-21: Add/remove/rename constellation nodes
+const nodes: NodeDef[] = [
+  { id: 'family', label: 'Family' },
+  { id: 'ai', label: 'AI' },
+  // ... add your own nodes here
+]
+
+// Lines 27-35: Customize node colors (any hex color)
+const nodeColor: Record<string, string> = {
+  family: '#f59e0b',      // Amber
+  ai: '#38bdf8',          // Sky blue
+  // ... match your node IDs
+}
+```
+
+**Size & Layout**:
+```typescript
+// Lines 84: Constellation size - Math.max(560, w) = full width with minimum
+// Lines 153-154: Orbital ring distance from center
+const orbitMin = size * 0.20    // Inner orbit (20% from center)
+const orbitMax = size * 0.38    // Outer orbit (38% from center)
+
+// Lines 160-161: Node planet sizes
+const nodeRMin = size * 0.04    // Smallest nodes (4% of constellation)
+const nodeRMax = size * 0.08    // Largest nodes (8% of constellation)
+
+// Line 146: Center planet size
+const centerRadius = size * 0.12 // 12% of constellation width
+```
+
+**Motion & Interaction**:
+```typescript
+// Line 127: Cursor interaction strength
+const PARALLAX_STRENGTH = 40    // 20=subtle, 60=dramatic, 0=none
+
+// Lines 98-100: Animation smoothness
+x: p.x + (targetParallax.x - p.x) * 0.12  // 0.12 = smooth, 0.5 = snappy
+
+// Lines 194-195: Node drift animation
+const amp = 5 + rand() * 8      // Drift distance (5-13 pixels)
+const speed = 0.4 + rand() * 0.5 // Drift speed (0.4-0.9)
+```
+
+**Distribution**:
+```typescript
+// Lines 181-186: Even vs random distribution
+const baseAngle = (idx / nodes.length) * Math.PI * 2     // Even spacing
+const randomOffset = (rand() - 0.5) * 0.6               // ±17° variation
+// For perfectly even: randomOffset = 0
+// For more random: (rand() - 0.5) * 1.2  (±35°)
+```
+
+### Philosophy Ticker
+**File**: `components/Ticker.tsx`
+
+**Content & Speed**:
+```typescript
+// In app/page.tsx, line 23-28: Ticker configuration
+<Ticker
+  text="Your philosophy text here..."
+  pixelsPerSecond={90}    // 60=slow, 120=fast, 200=very fast
+  height={110}            // Band height in pixels
+/>
+```
+
+**Typography**:
+```typescript
+// Lines 84-89: Text styling
+className="text-2xl md:text-4xl font-serif font-medium tracking-wide"
+// text-2xl md:text-4xl = 24px mobile, 36px desktop
+// font-serif = Times New Roman family
+// font-medium = slightly bold weight
+// tracking-wide = letter spacing for readability
+```
+
+**Visual Style**:
+```typescript
+// Line 58: Background appearance
+className="bg-black/45 backdrop-blur-[2px] ring-1 ring-white/10"
+// bg-black/45 = 45% opacity black background
+// backdrop-blur-[2px] = subtle background blur
+// ring-white/10 = 10% opacity white border
+
+// Lines 67-69: Edge fade masking
+WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)"
+// 6% and 94% control how much text fades at edges
+```
 
 ### Star Field Behavior
 **File**: `components/CursorField.tsx`
@@ -200,11 +312,14 @@ jeffs-website/
 │   ├── projects/                 # Project showcase
 │   ├── globals.css               # Global styles & gradients
 │   ├── layout.tsx                # Root layout with gradient
-│   └── page.tsx                  # Homepage
+│   └── page.tsx                  # Homepage with constellation & ticker
 ├── components/                   # Reusable components
+│   ├── AutoCarousel.tsx         # Auto-advancing project carousel
+│   ├── Constellation.tsx        # Interactive philosophy constellation
 │   ├── CursorField.tsx          # Interactive star field
 │   ├── Hero.tsx                 # Hero section with scroll effects
 │   ├── Navigation.tsx           # Site navigation
+│   ├── Ticker.tsx               # Auto-scrolling philosophy ticker
 │   └── TiptapEditor.tsx         # Rich text editor
 ├── content/                     # MDX content
 │   ├── blog/                    # Blog posts

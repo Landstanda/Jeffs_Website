@@ -31,7 +31,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-[200vh] overflow-hidden">
+    <section className="relative min-h-[160vh] overflow-hidden">{/* TUNABLE: reduces scroll length so constellation appears sooner */}
       <div ref={wrapperRef} className="sticky top-0 h-screen">
         {/* Black background that fades out; masked at the bottom to avoid a hard seam */}
         <div
@@ -63,11 +63,10 @@ export default function Hero() {
               />
             </div>
             
-            {/* Text content with backdrop */}
-            <div className="relative">
-              <div className="absolute inset-x-0 -inset-y-4 rounded-xl bg-black/55 backdrop-blur-sm z-10" />
+            {/* Lead line and subtitle */}
+            <div className="relative text-center">
               <h1 
-                className="relative z-20 text-3xl font-semibold tracking-tight mb-3"
+                className="relative z-20 text-4xl font-semibold tracking-tight mb-2"
                 style={{
                   background: 'linear-gradient(to right, #4c1d95, #1e3a8a)',
                   WebkitBackgroundClip: 'text',
@@ -75,15 +74,11 @@ export default function Hero() {
                   backgroundClip: 'text'
                 }}
               >
-                Automating better futures
+                Reimagining civilization
               </h1>
-              <p className="relative z-20 text-sky-200/90 mb-3">
-                Building apps at the edge — private, lightweight, brilliant, fast.
-                Permaculture‑minded. AI‑optimistic.
+              <p className="relative z-20 text-base text-sky-200/90">
+                One reality-shifting project at a time.
               </p>
-              <div className="relative z-20 text-sm text-white/70 leading-relaxed">
-                <p>Edgewise is an exploration of resilient software that thrives on the edge. Less weight, more signal.</p>
-              </div>
             </div>
           </div>
 
@@ -101,9 +96,9 @@ export default function Hero() {
                 />
               </div>
             </div>
-            <div className="flex flex-col items-start justify-center gap-4 p-12">
+            <div className="flex flex-col items-center justify-center gap-3 p-12 text-center">
               <h1 
-                className="text-5xl font-semibold tracking-tight"
+                className="text-6xl font-semibold tracking-tight"
                 style={{
                   background: 'linear-gradient(to right, #4c1d95, #1e3a8a)',
                   WebkitBackgroundClip: 'text',
@@ -111,15 +106,11 @@ export default function Hero() {
                   backgroundClip: 'text'
                 }}
               >
-                Automating better futures
+                Reimagining civilization
               </h1>
-              <p className="text-sky-200/90 max-w-xl">
-                Building apps at the edge — private, lightweight, brilliant, fast.
-                Permaculture‑minded. AI‑optimistic.
+              <p className="text-sky-200/90 text-xl">
+                One reality-shifting project at a time.
               </p>
-              <div className="text-sm text-white/70 max-w-lg leading-relaxed">
-                <p>Edgewise is an exploration of resilient software that thrives on the edge. Less weight, more signal.</p>
-              </div>
             </div>
           </div>
         </div>
