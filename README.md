@@ -5,10 +5,12 @@ A stunning Next.js website featuring a black-to-sunrise gradient hero with inter
 ## ✨ Key Features
 
 ### 🌟 Interactive Star Field
-- **Dancing stars** concentrated at the top that react to mouse movement
+- **Dancing stars** concentrated at the top that react to mouse and touch movement
+- **Mobile-optimized** with reduced star count (24 vs 120) and smaller sizes for better performance
 - **Twinkling animation** with smooth drift for organic feel
 - **Scroll masking** so stars stay visually "stuck" at the top during transitions
 - **Top-biased distribution** using squared random for realistic star field
+- **Touch-responsive** stars react to finger movement on mobile devices
 
 ### 🌅 Scroll-Driven Color Transitions
 - **Sunrise gradient**: Black → Dark Blue → Sky Blue → Green progression
@@ -27,6 +29,7 @@ A stunning Next.js website featuring a black-to-sunrise gradient hero with inter
 - **Fly.io deployment** with Dockerfile included
 - **Image optimization** with Next.js Image component
 - **Responsive design** with Tailwind CSS
+- **Mobile-first optimizations** with adaptive star field and layout stacking
 
 ## 🛠️ Development
 
@@ -67,27 +70,28 @@ npx prisma db push
 
 **Distribution & Count**:
 ```typescript
-// Line 7: Adjust total number of stars
-export default function CursorField({ count = 120 })
+// Line 15: Adjust total number of stars (mobile vs desktop)
+export default function CursorField({ count = 120, compact = false })
 
-// Lines 24-26: Control star distribution
+// Lines 22-24: Control star distribution (adaptive for mobile)
 const u = Math.random()                    // Uniform across width
-const v = Math.pow(Math.random(), 2) * 0.8 // Top-biased height (0.8 = 80% of screen)
-const size = 1.2 + Math.random() * 1.8     // Star size variance
+const v = (compact ? Math.pow(Math.random(), 1.4) * 1.0 : Math.pow(Math.random(), 2) * 0.8)
+const size = compact ? 0.8 + Math.random() * 1.0 : 1.2 + Math.random() * 1.7
 ```
 
 **Animation Behavior**:
 ```typescript
-// Lines 54-56: Interaction & movement
-const influence = 80 * devicePixelRatio  // Mouse repulsion radius
-const snap = 0.08                        // Spring-back speed to home
-const friction = 0.88                    // Movement damping
+// Lines 60-62: Interaction & movement (adaptive for mobile)
+const influence = (compact ? 120 : 140) * dpr  // Pointer repulsion radius
+const snap = 0.12                               // Spring-back speed to home
+const friction = 0.80                           // Movement damping
 
-// Lines 65-66: Drift animation
-pt.vx += Math.sin(t * 0.5 + pt.twinklePhase) * 0.02  // Horizontal drift
-pt.vy += Math.cos(t * 0.4 + pt.twinklePhase) * 0.02  // Vertical drift
+// Lines 80-82: Drift animation (reduced on mobile)
+const drift = compact ? 0.015 : 0.02
+pt.vx += Math.sin(t * 0.5 + pt.twinklePhase) * drift * dpr
+pt.vy += Math.cos(t * 0.4 + pt.twinklePhase) * drift * dpr
 
-// Line 82: Twinkle animation
+// Line 100: Twinkle animation
 const twinkle = 0.6 + 0.4 * Math.sin(t * 2.2 + pt.twinklePhase)
 ```
 
@@ -122,19 +126,35 @@ ctx.arc(pt.x || hx, pt.y || hy, pt.size * 2.0 * devicePixelRatio, 0, Math.PI * 2
 
 **File**: `components/Hero.tsx`
 
+**Responsive Layout**:
+```typescript
+// Mobile: Stacked layout with larger portrait
+<div className="flex flex-col md:hidden p-6">
+  <div className="relative w-64 h-96 mb-4">  // Larger mobile portrait
+    <Image src="/jeff.png" ... />
+  </div>
+  // Text with backdrop for readability
+</div>
+
+// Desktop: Side-by-side grid layout
+<div className="hidden md:grid md:grid-cols-2 h-full">
+  // Original desktop layout preserved
+</div>
+```
+
 **Hero Overlay Masking**:
 ```typescript
-// Lines 28-35: Black overlay with soft bottom fade
+// Lines 39-41: Black overlay with soft bottom fade
 style={{
   opacity: Math.max(0, 1 - phase),
   WebkitMaskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
   maskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
 }}
 
-// Lines 32-34: Star field masking
+// Lines 47-48: Star field masking (tighter on mobile)
 style={{ 
-  WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)',
-  maskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)' 
+  WebkitMaskImage: 'linear-gradient(to bottom, black 65%, transparent 100%)',
+  maskImage: 'linear-gradient(to bottom, black 65%, transparent 100%)' 
 }}
 ```
 
@@ -222,9 +242,10 @@ CLOUDINARY_API_SECRET="your-api-secret"
 ## 🎯 Performance Tips
 
 ### Star Field Optimization
-- **Reduce count** for mobile: `count={60}` on smaller screens
-- **Adjust devicePixelRatio** calculations for different displays
-- **Use CSS transforms** instead of canvas for simple movements (if needed)
+- **Adaptive count**: `count={24}` on mobile, `count={120}` on desktop
+- **Performance tuning**: Clamped devicePixelRatio and reduced drift on mobile
+- **Touch responsiveness**: Pointer events for both mouse and touch interaction
+- **Layout separation**: Dedicated mobile (stacked) and desktop (grid) layouts
 
 ### Gradient Performance
 - **Use CSS custom properties** for dynamic color changes
@@ -249,8 +270,9 @@ experimental: {
 
 **Stars not appearing**:
 - Check canvas dimensions in browser DevTools
-- Verify `devicePixelRatio` calculations
+- Verify `devicePixelRatio` calculations (clamped for performance)
 - Ensure WebGL context is available
+- On mobile: Verify `compact` mode is enabled with reduced star count
 
 **Gradient seams**:
 - Adjust mask percentages in `Hero.tsx`

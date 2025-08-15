@@ -12,60 +12,63 @@ type Point = {
   size: number
 }
 
-export default function CursorField({ count = 120 }: { count?: number }) {
+export default function CursorField({ count = 120, compact = false }: { count?: number, compact?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const points = useMemo<Point[]>(() => {
     const arr: Point[] = []
     for (let i = 0; i < count; i++) {
-      // uniform X, top-biased Y (square the random), clamp to top ~60%
+      // uniform X; Y distribution less top-biased in compact mode to avoid cramped feel
       const u = Math.random()
-      const v = Math.pow(Math.random(), 2) * 0.8
-      const size = 1.2 + Math.random() * 1.8
+      const v = (compact ? Math.pow(Math.random(), 1.4) * 1.0 : Math.pow(Math.random(), 2) * 0.8)
+      const size = compact ? 0.8 + Math.random() * 1.0 : 1.2 + Math.random() * 1.7
       const phase = Math.random() * Math.PI * 2
       arr.push({ x: 0, y: 0, homeU: u, homeV: v, vx: 0, vy: 0, twinklePhase: phase, size })
     }
     return arr
-  }, [count])
+  }, [count, compact])
 
   useEffect(() => {
     const c = canvasRef.current
     if (!c) return
     const ctx = c.getContext('2d')!
+    const dpr = Math.min((typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1), compact ? 1.25 : 1.75)
 
     let animation = 0
     let mouseX = -9999, mouseY = -9999
 
     const onResize = () => {
-      c.width = c.clientWidth * devicePixelRatio
-      c.height = c.clientHeight * devicePixelRatio
+      c.width = c.clientWidth * dpr
+      c.height = c.clientHeight * dpr
     }
     onResize()
     window.addEventListener('resize', onResize)
 
-    const onMove = (e: MouseEvent) => {
+    const onPointerMove = (e: PointerEvent) => {
       const rect = c.getBoundingClientRect()
-      mouseX = (e.clientX - rect.left) * devicePixelRatio
-      mouseY = (e.clientY - rect.top) * devicePixelRatio
+      mouseX = (e.clientX - rect.left) * dpr
+      mouseY = (e.clientY - rect.top) * dpr
     }
-    const onLeave = () => { mouseX = -9999; mouseY = -9999 }
+    const onPointerEnd = () => { mouseX = -9999; mouseY = -9999 }
     
-    // Use window events instead of canvas events for better coverage
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseleave', onLeave)
+    // Use pointer events for both mouse and touch; passive to not block scrolling
+    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    window.addEventListener('pointerup', onPointerEnd, { passive: true })
+    window.addEventListener('pointercancel', onPointerEnd, { passive: true })
+    window.addEventListener('mouseleave', onPointerEnd, { passive: true })
 
     const render = () => {
-      const pad = 40 * devicePixelRatio
+      const pad = (compact ? 56 : 40) * dpr
       const innerWidth = Math.max(0, c.width - pad * 2)
       const innerHeight = Math.max(0, c.height - pad * 2)
-      const influence = 80 * devicePixelRatio
-      const snap = 0.08
-      const friction = 0.88
+      const influence = (compact ? 120 : 140) * dpr  // Pointer repulsion radius
+      const snap = 0.12                                 // Spring-back speed to home
+      const friction = 0.80                              // Movement damping
       const t = performance.now() * 0.001
 
       ctx.clearRect(0, 0, c.width, c.height)
       ctx.fillStyle = '#ffffff'
-      ctx.shadowColor = 'rgba(255,255,255,0.85)'
-      ctx.shadowBlur = 6 * devicePixelRatio
+      ctx.shadowColor = 'rgba(255, 255, 232, 0.85)'
+      ctx.shadowBlur = 6 * dpr
 
       for (let p = 0; p < points.length; p++) {
         const pt = points[p]
@@ -76,9 +79,10 @@ export default function CursorField({ count = 120 }: { count?: number }) {
         pt.vx += (hx - pt.x) * snap
         pt.vy += (hy - pt.y) * snap
 
-        // gentle drift to feel alive
-        pt.vx += Math.sin(t * 0.5 + pt.twinklePhase) * 0.02 * devicePixelRatio
-        pt.vy += Math.cos(t * 0.4 + pt.twinklePhase) * 0.02 * devicePixelRatio
+        // gentle drift to feel alive (smaller in compact mode)
+        const drift = compact ? 0.015 : 0.02
+        pt.vx += Math.sin(t * 0.5 + pt.twinklePhase) * drift * dpr
+        pt.vy += Math.cos(t * 0.4 + pt.twinklePhase) * drift * dpr
 
         // repel from cursor
         const mx = pt.x - mouseX
@@ -100,7 +104,8 @@ export default function CursorField({ count = 120 }: { count?: number }) {
         const twinkle = 0.6 + 0.4 * Math.sin(t * 2.2 + pt.twinklePhase)
         ctx.globalAlpha = twinkle
         ctx.beginPath()
-        ctx.arc(pt.x || hx, pt.y || hy, pt.size * 2.0 * devicePixelRatio, 0, Math.PI * 2)
+        const radius = (compact ? pt.size * 1.6 : pt.size * 2.0) * dpr
+        ctx.arc(pt.x || hx, pt.y || hy, radius, 0, Math.PI * 2)
         ctx.fill()
       }
 
@@ -111,7 +116,7 @@ export default function CursorField({ count = 120 }: { count?: number }) {
 
     // init positions
     const init = () => {
-      const pad = 40 * devicePixelRatio
+      const pad = (compact ? 56 : 40) * dpr
       const innerWidth = Math.max(0, c.width - pad * 2)
       const innerHeight = Math.max(0, c.height - pad * 2)
       for (const pt of points) {
@@ -125,10 +130,12 @@ export default function CursorField({ count = 120 }: { count?: number }) {
     return () => {
       cancelAnimationFrame(animation)
       window.removeEventListener('resize', onResize)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', onPointerEnd)
+      window.removeEventListener('pointercancel', onPointerEnd)
+      window.removeEventListener('mouseleave', onPointerEnd)
     }
-  }, [points])
+  }, [points, compact])
 
   return (
     <canvas 
