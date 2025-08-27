@@ -119,3 +119,36 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* WordPress/Gutenberg content helpers */
+.prose :where(.alignleft) {
+  float: left;
+  margin-right: 1rem;
+}
+.prose :where(.alignright) {
+  float: right;
+  margin-left: 1rem;
+}
+.prose :where(.aligncenter) {
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose :where(.alignwide) {
+  width: min(80ch, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose :where(.alignfull) {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+.prose :where(figure.wp-block-image figcaption) {
+  color: rgba(255,255,255,0.6);
+}
+.prose :where(blockquote) {
+  border-left-color: rgba(14,165,233,0.5);
+}

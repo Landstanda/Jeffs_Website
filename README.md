@@ -38,10 +38,10 @@ A stunning Next.js website featuring a black-to-sunrise gradient hero with inter
 - **GPU-optimized** animations for smooth performance
 
 ### 📝 Content Management
-- **MDX blog** with rich text editor (Tiptap)
+- **WordPress headless CMS** with WPGraphQL API
+- **Password-protected admin** redirects to WordPress wp-admin
 - **Project showcase** with dynamic routing
 - **Media gallery** for photos and videos
-- **Admin dashboard** for content management
 
 ### 🚀 Performance & Deployment
 - **Static-first** Next.js with optimized builds
@@ -81,6 +81,56 @@ npx prisma generate
 # Apply migrations
 npx prisma db push
 ```
+
+### WordPress (Headless) Setup
+
+Use a self-hosted, open-source WordPress as the CMS while keeping this Next.js site as the frontend. As of Aug 2025 the standard free stack is:
+
+- WPGraphQL (preferred API) with Gutenberg block editor
+- REST API fallback if WPGraphQL is unavailable
+
+Steps:
+
+1) Provision WordPress (any host works)
+- MySQL/MariaDB + PHP 8.1+
+- Install plugins: WPGraphQL, WPGraphQL CORS (optional)
+- Configure Permalinks → Post name
+
+2) Configure this Next app
+- Add to `.env.local`:
+```env
+WORDPRESS_GRAPHQL_ENDPOINT="https://your-wp-site.com/graphql"
+WORDPRESS_SITE_URL="https://your-wp-site.com"
+ADMIN_PASSWORD="your-strong-password"
+WORDPRESS_ADMIN_URL="https://your-wp-site.com"
+```
+- Start dev server: `npm run dev`
+- Visit `/blog` and individual posts at `/blog/[slug]`
+- Click "Login" in top navigation, enter admin password to access WordPress wp-admin
+
+3) Image domains
+- If your WP media is hosted under your WP domain, add it to `images.remotePatterns` in `next.config.mjs`.
+
+4) Theming
+- Gutenberg output is rendered through `prose prose-invert` with Tailwind Typography for dark mode. Adjust styles in `app/globals.css` under “WordPress/Gutenberg content helpers”.
+
+### Substack → WordPress Migration (free)
+
+1) Export from Substack
+- Substack → Settings → Exports → New export → download ZIP
+
+2) Import into WordPress
+- WordPress Admin → Tools → Import → Install “Substack Importer” → Run Importer
+- Upload the Substack ZIP; check “Download and import file attachments”
+- Assign authors
+
+3) Verify
+- Ensure posts, images, and comments appear in WP
+- If you rely on tags/categories, validate they were created
+
+4) Go-live checklist
+- Confirm slugs match desired URL scheme (so `/blog/[slug]` works)
+- Add redirects if you changed paths from Substack
 
 ## 🎨 Customization Guide
 
@@ -303,12 +353,10 @@ const obs = new IntersectionObserver(
 jeffs-website/
 ├── app/                          # Next.js 13+ app directory
 │   ├── (pages)/                  # Route groups
-│   ├── admin/                    # Admin dashboard
-│   │   └── blog/                 # Blog management
+│   ├── admin/                    # Password-protected WordPress login
 │   ├── api/                      # API routes
-│   │   ├── blog/                 # Blog endpoints
 │   │   └── contact/              # Contact form
-│   ├── blog/                     # Blog pages
+│   ├── blog/                     # WordPress-powered blog pages
 │   ├── projects/                 # Project showcase
 │   ├── globals.css               # Global styles & gradients
 │   ├── layout.tsx                # Root layout with gradient
@@ -330,6 +378,35 @@ jeffs-website/
 ├── public/                      # Static assets
 └── fly.toml                     # Fly.io deployment config
 ```
+
+## ✅ Recent Updates (Aug 2025)
+
+- Switched to a WordPress-only blog
+  - Removed legacy Prisma blog admin/UI and API routes
+    - Removed: `app/admin/blog/**`, `app/api/blog/**`
+  - Refactored `app/blog/page.tsx` and `app/blog/[slug]/page.tsx` to fetch from WordPress only
+- Navigation and login
+  - Top-right button renamed to “Login” and points to `/admin`
+  - `/admin` shows a password form and redirects to WordPress `wp-admin`
+  - Required env: `ADMIN_PASSWORD`, plus either `WORDPRESS_ADMIN_URL` or `WORDPRESS_SITE_URL`
+- Fly.io auth and deployment
+  - Resolved flyctl double-auth issue by clearing `FLY_API_TOKEN` and re-authenticating
+  - Deployed site to Fly (`jeff-edgewise`) and set secrets:
+    - `WORDPRESS_SITE_URL`, `WORDPRESS_GRAPHQL_ENDPOINT`, `ADMIN_PASSWORD`
+- WordPress app hardening (`jeff-edgewise-wp`)
+  - Ensured a single running Machine (removed duplicate)
+  - Increased RAM to 1 GB to prevent OOM kills
+  - Cleared a malformed `WORDPRESS_CONFIG_EXTRA` that caused `wp-admin` 500s
+  - Recommendation: set WordPress Address and Site Address in the WP Admin UI (Settings → General)
+- Cloudinary media delivery (recommended)
+  - Install “Cloudinary – Media Plugin”, connect account, enable “Automatically upload media” + “Deliver media via Cloudinary”, then run a bulk sync from Media Library
+
+### Troubleshooting: wp-admin 500 after deploy
+
+- Symptom: `PHP Parse error … unexpected identifier "FORCE_SSL_ADMIN" in wp-config.php(…): eval()'d code`
+- Cause: malformed PHP injected via `WORDPRESS_CONFIG_EXTRA` (quoting in shell produced invalid PHP)
+- Fix: set `WORDPRESS_CONFIG_EXTRA` to a safe no-op (or leave unset) and configure URLs in WP Admin UI
+  - WP Admin → Settings → General → set both URLs to `https://jeff-edgewise-wp.fly.dev`
 
 ## 🚀 Deployment
 
@@ -370,13 +447,80 @@ flyctl scale count 1 --app jeff-edgewise
 - `--remote-only`: Build in Fly's cloud (faster, handles large files better)
 - `--detach`: Don't wait for deployment to complete (optional)
 
+### Custom domain on Fly.io (Namecheap)
+
+Serve the site at `https://jeff-edge.com` and `https://www.jeff-edge.com`.
+
+1) DNS at Namecheap
+- ALIAS (flattened CNAME) at apex:
+  - Host: `@`
+  - Value: `jeff-edgewise.fly.dev`
+  - TTL: 5 minutes or Automatic
+- CNAME for `www`:
+  - Host: `www`
+  - Value: `jeff-edgewise.fly.dev`
+  - TTL: Automatic
+
+That setup matches the screenshot and is correct. Alternatively you can point `@` to A/AAAA from `flyctl ips list`, but ALIAS → `appname.fly.dev` is simplest.
+
+2) Authenticate `flyctl` on Windows
+```powershell
+# If flyctl is in PATH
+flyctl auth login
+
+# If not in PATH, use full path (adjust if different on your machine)
+$FLY = "C:\\Users\\$env:USERNAME\\.fly\\bin\\flyctl.exe"
+& $FLY auth login
+```
+
+3) Request certificates
+```powershell
+# Use either flyctl (on PATH) or $FLY (full path)
+flyctl certs add jeff-edge.com --app jeff-edgewise
+flyctl certs add www.jeff-edge.com --app jeff-edgewise
+```
+
+4) Add the ACME challenge CNAMEs printed by the commands
+- Create CNAME: `_acme-challenge.jeff-edge.com` → `_acme-challenge.jeff-edgewise.fly.dev`
+- Create CNAME: `_acme-challenge.www.jeff-edge.com` → `_acme-challenge.jeff-edgewise.fly.dev`
+
+5) Verify issuance
+```powershell
+flyctl certs show jeff-edge.com --app jeff-edgewise
+flyctl certs show www.jeff-edge.com --app jeff-edgewise
+# or all
+flyctl certs list --app jeff-edgewise
+```
+
+Notes
+- No changes are required in `fly.toml`; Fly will route based on the certificate.
+- For a single canonical host, you can redirect `www` → apex (or vice versa) in your app or with a small middleware.
+
 ### Environment Variables
 Create `.env.local` for local development:
 ```env
+# Database (for Prisma, if needed for projects/other features)
 DATABASE_URL="file:./dev.db"
-CLOUDINARY_CLOUD_NAME="your-cloud-name"
+
+# WordPress Configuration (Required)
+WORDPRESS_GRAPHQL_ENDPOINT="https://your-wp-site.com/graphql"
+WORDPRESS_SITE_URL="https://your-wp-site.com"
+
+# Admin Access (Required)
+ADMIN_PASSWORD="your-strong-password"
+WORDPRESS_ADMIN_URL="https://your-wp-site.com"
+
+# Cloudinary (Optional - for media)
+CLOUDINARY_CLOUD_NAME="your-cloud-name" 
 CLOUDINARY_API_KEY="your-api-key"
 CLOUDINARY_API_SECRET="your-api-secret"
+```
+
+For production deployment on Fly.io, set these as secrets:
+```bash
+flyctl secrets set ADMIN_PASSWORD="your-password" --app your-app-name
+flyctl secrets set WORDPRESS_SITE_URL="https://your-wp-site.com" --app your-app-name
+flyctl secrets set WORDPRESS_GRAPHQL_ENDPOINT="https://your-wp-site.com/graphql" --app your-app-name
 ```
 
 ## 🎯 Performance Tips
@@ -455,4 +599,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Built with ❤️ by Jeff** • [Live Site](https://jeff-edgewise.fly.dev) • [GitHub](https://github.com/your-username/jeffs-website)
+**Built with ❤️ by Jeff** • [Live Site](https://jeff-edge.com) • [GitHub](https://github.com/your-username/jeffs-website)

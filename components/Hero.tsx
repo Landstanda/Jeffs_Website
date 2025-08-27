@@ -96,7 +96,7 @@ export default function Hero() {
                 />
               </div>
             </div>
-            <div className="flex flex-col items-center justify-center gap-3 p-12 text-center">
+            <div className="flex flex-col items-center justify-center gap-2 p-12 text-center">
               <h1 
                 className="text-6xl font-semibold tracking-tight"
                 style={{

@@ -1,5 +1,7 @@
 # Personal Website on Fly.io — Build Plan
 
+EdgewiseAdmin2025!
+
 ## Vision
 - **Persona**: Inventive futurist and permaculture‑obsessed AI optimist. Show playful, tech‑savvy vibes while sharing blogs, videos, and projects.
 - **Hero concept**: Start on a pure black intro that transforms with scroll; mouse/gesture‑reactive visuals; optional interactive 3D (GLB) that hints at AR.

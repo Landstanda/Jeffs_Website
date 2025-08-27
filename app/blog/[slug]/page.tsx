@@ -1,29 +1,35 @@
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
 import TiptapEditor from '@/components/TiptapEditor'
 // Use native <img> to avoid crashes from remote domain/image config
 import Link from 'next/link'
+import { fetchWordpressPostBySlug, isWordpressConfigured } from '@/lib/wordpress'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export default async function BlogPost({ params }: { params: { slug: string } }) {
-  const post = await prisma.post.findFirst({
-    where: {
-      slug: params.slug,
-      published: true
-    }
-  })
-  
-  if (!post) return notFound()
-  
+  let post: any = null
   let content: any = null
-  try {
-    content = post.content ? JSON.parse(post.content) : null
-  } catch (err) {
-    console.error('Invalid post content JSON for slug', params.slug, err)
-    content = null
+
+  if (isWordpressConfigured()) {
+    try {
+      const wp = await fetchWordpressPostBySlug(params.slug)
+      if (wp) {
+        post = {
+          title: wp.title,
+          excerpt: wp.excerpt,
+          featuredImage: wp.featuredImage,
+          tags: wp.tags,
+          createdAt: new Date(wp.createdAt),
+        }
+        content = { type: 'html', html: wp.contentHtml }
+      }
+    } catch (e) {
+      console.error('Failed to fetch WordPress post:', e)
+    }
   }
+
+  if (!post) return notFound()
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -79,7 +85,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
       {/* Content */}
       <article className="prose prose-invert prose-lg max-w-none">
         {content ? (
-          <TiptapEditor content={content} editable={false} />
+          content?.type === 'html' ? (
+            <div
+              className="prose prose-invert prose-sky max-w-none"
+              dangerouslySetInnerHTML={{ __html: content.html }}
+            />
+          ) : (
+            <TiptapEditor content={content} editable={false} />
+          )
         ) : (
           <p className="text-white/70">No content available.</p>
         )}

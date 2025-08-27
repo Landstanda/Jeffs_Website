@@ -1,0 +1,22 @@
+app = "jeff-edgewise-wp"
+primary_region = "sjc"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_start_machines = true
+  auto_stop_machines = true
+  min_machines_running = 1
+  max_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+  [[vm.mounts]]
+    source = "uploads"
+    destination = "/var/www/html/wp-content"
+
+

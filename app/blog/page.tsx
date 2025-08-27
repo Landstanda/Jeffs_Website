@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { fetchWordpressPosts, isWordpressConfigured } from '@/lib/wordpress'
 // Using native <img> to avoid remote domain restrictions that can crash the page
 
 export const dynamic = 'force-dynamic'
@@ -18,23 +18,22 @@ interface Post {
 
 export default async function BlogIndex() {
   let posts: Array<any> = []
-  try {
-    posts = await prisma.post.findMany({
-      where: { published: true },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        featuredImage: true,
-        tags: true,
-        createdAt: true,
-        updatedAt: true,
-      }
-    })
-  } catch (error) {
-    console.error('Failed to load posts:', error)
+  if (isWordpressConfigured()) {
+    try {
+      const wpPosts = await fetchWordpressPosts(20)
+      posts = wpPosts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        excerpt: p.excerpt,
+        featuredImage: p.featuredImage,
+        tags: p.tags,
+        createdAt: new Date(p.createdAt),
+        updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(p.createdAt),
+      }))
+    } catch (error) {
+      console.error('Failed to load posts from WordPress:', error)
+    }
   }
 
   return (

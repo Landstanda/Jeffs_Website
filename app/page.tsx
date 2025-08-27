@@ -24,7 +24,7 @@ export default function Home() {
             'Born at the cusp of Gen X & Millennials, riding the most extraordinary wave of technological innovation humanity remembers. Anticipating a fantastic future where the intelligent take over the world and create abundance for all..!'
           }
           pixelsPerSecond={90}
-          height={110}
+          height={100}
         />
       </section>
 
@@ -32,7 +32,7 @@ export default function Home() {
       <section className="relative py-16 md:py-24">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-white/80 italic mb-6">"The world is alive with low-hanging fruit for those willing to reach. I can’t stop reaching."</p>
+            <p className="text-white/80 italic mb-6">"The world is alive with low-hanging fruit for those able to see willing to reach. I can’t stop reaching."</p>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Past Projects</h2>
             <AutoCarousel
               slides={[
@@ -60,7 +60,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="rounded-2xl bg-black/50 backdrop-blur-sm ring-1 ring-white/10 p-8 md:p-12">
               <p className="text-lg md:text-2xl text-white/90">
-                The greatest invention of my life is the life I share with my wife and our child. They are both my grounding wire, my inspiration, and my favorite ongoing project!
+                The greatest invention of my life is the life I share with my wife and our child. They are my grounding wire, my inspiration, and my favorite ongoing project!
               </p>
             </div>
           </div>

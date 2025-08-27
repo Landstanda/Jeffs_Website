@@ -1,0 +1,27 @@
+app = "jeff-edgewise-wp-db"
+primary_region = "sjc"
+
+# MariaDB service runs on 3306 inside the private Fly network.
+# No public ports are exposed.
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+  [[vm.mounts]]
+    source = "data"
+    destination = "/var/lib/mysql"
+
+[[services]]
+  internal_port = 3306
+  protocol = "tcp"
+  autostart = true
+  autostop = false
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  # No public ports, keep DB private to Fly network
+

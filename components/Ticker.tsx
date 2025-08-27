@@ -71,7 +71,7 @@ export default function Ticker({ text, pixelsPerSecond = 110, height = 72 }: Tic
       >
         {/* Scrolling track */}
         <div
-          className="absolute left-0 top-1/2 -translate-y-1 whitespace-nowrap will-change-transform"
+          className="absolute left-0 top-1/3 -translate-y-1/2 whitespace-nowrap will-change-transform"
           style={{
             animationName: "ticker-scroll",
             animationDuration: `${durationSec}s`,
